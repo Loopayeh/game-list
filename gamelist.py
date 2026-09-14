@@ -32,6 +32,10 @@ FA_WORD = "farsi"
 
 SHOP_NAME = "Loopayeh"
 
+APP_VERSION = "v1.0.0"  # bump on every release — the updater compares this
+UPDATE_REPO = "Loopayeh/game-list"
+UPDATE_EXE = "GameList.exe"
+
 
 def is_farsi(path):
     """True if the file/folder name contains 'Farsi' (any case)."""
@@ -644,7 +648,7 @@ def run_gui():
              "sort": "size", "fmts": list(FMTS), "pdf_theme": "dark"}
 
     root = tk.Tk()
-    root.title("Game List  •  PS4 / PS5")
+    root.title("Game List %s  •  PS4 / PS5" % APP_VERSION)
     try:
         import sys as _sys
         _ic = os.path.join(getattr(_sys, "_MEIPASS",
@@ -831,6 +835,9 @@ def run_gui():
     ttk.Button(left, text="Open folder", style="Ghost.TButton",
                command=lambda: open_folder()).pack(anchor="w",
                                                    pady=(10, 0))
+    ttk.Button(left, text="Select all", style="Ghost.TButton",
+               command=lambda: select_all()).pack(anchor="w",
+                                                  pady=(6, 0))
     state["checked"] = set()
     state["pick_order"] = []
     state["pending"] = ""
@@ -874,10 +881,128 @@ def run_gui():
     tree.pack(side="left", fill="both", expand=True)
     sb.pack(side="left", fill="y")
 
+    bottombar = ttk.Frame(root)
+    bottombar.pack(fill="x", side="bottom")
     statusvar = tk.StringVar(value="Ready")
-    tk.Label(root, textvariable=statusvar, bg=BG, fg=MUTED,
+    tk.Label(bottombar, textvariable=statusvar, bg=BG, fg=MUTED,
              font=FONT_SMALL, anchor="w", padx=12, pady=6).pack(
-                 fill="x", side="bottom")
+                 side="left", fill="x", expand=True)
+    ttk.Button(bottombar, text="Check updates", style="Ghost.TButton",
+               command=lambda: check_updates(manual=True)).pack(
+                   side="right", padx=(0, 12), pady=4)
+
+    def check_updates(manual=False):
+        """Check GitHub releases for a newer build (stdlib only)."""
+        try:
+            import updater as _up
+        except Exception as e:
+            if manual:
+                statusvar.set("Update check failed: %s" % e)
+            return
+        if manual:
+            statusvar.set("Checking for updates...")
+
+        def _done(info):
+            def _ui():
+                if not info:
+                    if manual:
+                        statusvar.set("No releases found (or offline)")
+                    return
+                try:
+                    newer = _up.is_newer(info.get("tag", ""), APP_VERSION)
+                except Exception:
+                    newer = False
+                if newer:
+                    _show_update_dialog(info)
+                elif manual:
+                    statusvar.set("Up to date (%s)" % APP_VERSION)
+            try:
+                root.after(0, _ui)
+            except Exception:
+                pass
+        _up.check_in_background(UPDATE_REPO, _done)
+
+    def _show_update_dialog(info):
+        try:
+            import updater as _up
+        except Exception:
+            return
+        tag = info.get("tag", "")
+        dlg = tk.Toplevel(root)
+        dlg.title("Update available")
+        dlg.configure(bg=BG)
+        try:
+            dlg.transient(root)
+            dlg.grab_set()
+        except Exception:
+            pass
+        tk.Label(dlg, text="A new version is available:", bg=BG, fg=MUTED,
+                 font=FONT_SMALL).pack(anchor="w", padx=16, pady=(14, 2))
+        tk.Label(dlg, text="%s  (you have %s)" % (info.get("name", tag),
+                                                  APP_VERSION),
+                 bg=BG, fg=TEXT, font=FONT).pack(anchor="w", padx=16)
+        _body = (info.get("body", "") or "").strip().split("\n")
+        _notes = "\n".join(_body[:12])
+        if _notes:
+            _tx = tk.Text(dlg, bg=CARD, fg=TEXT, font=FONT_SMALL,
+                          wrap="word", borderwidth=0, padx=10, pady=10,
+                          height=8, width=60)
+            _tx.pack(fill="both", expand=True, padx=16, pady=(10, 0))
+            _tx.insert("end", _notes)
+            _tx.config(state="disabled")
+        _prog = tk.StringVar(value="")
+        tk.Label(dlg, textvariable=_prog, bg=BG, fg=MUTED,
+                 font=FONT_SMALL).pack(anchor="w", padx=16, pady=(6, 0))
+        _btns = tk.Frame(dlg, bg=BG)
+        _btns.pack(fill="x", padx=16, pady=14)
+
+        def _dl():
+            _asset = _up.pick_exe_asset(info, (UPDATE_EXE,))
+            if not _asset:
+                _prog.set("No .exe found in this release")
+                return
+            _prog.set("Downloading %s..." % _asset["name"])
+            for _b in _btns.winfo_children():
+                try:
+                    _b.config(state="disabled")
+                except Exception:
+                    pass
+
+            def _work():
+                try:
+                    import tempfile as _tf
+                    _tmp = _tf.mkdtemp(prefix="update_")
+                    _dest = os.path.join(_tmp, _asset["name"])
+
+                    def _pg(got, total):
+                        if total:
+                            root.after(0, _prog.set,
+                                       "Downloading... %d%%"
+                                       % (got * 100 // total))
+                    _up.download(_asset["url"], _dest, progress=_pg)
+                except Exception as e:
+                    root.after(0, _prog.set, "Download failed: %s" % e)
+                    return
+
+                def _fin():
+                    try:
+                        if _up.stage_and_restart(_dest):
+                            try:
+                                dlg.destroy()
+                            except Exception:
+                                pass
+                            root.after(300, root.destroy)
+                        else:
+                            _prog.set("Saved to %s (dev mode)" % _dest)
+                    except Exception as e:
+                        _prog.set("Update failed: %s" % e)
+                root.after(0, _fin)
+            import threading as _th
+            _th.Thread(target=_work, daemon=True).start()
+        ttk.Button(_btns, text="Download + Restart",
+                   style="Accent.TButton", command=_dl).pack(side="left")
+        ttk.Button(_btns, text="Later", style="Ghost.TButton",
+                   command=dlg.destroy).pack(side="left", padx=(8, 0))
 
     def browse():
         d = filedialog.askdirectory(title="Select folder of games")
@@ -1199,6 +1324,21 @@ def run_gui():
                     _ord.append(k)
         refresh()
 
+    def select_all():
+        items = state.get("items", [])
+        if not items:
+            return
+        _push_hist()
+        _chk = state.setdefault("checked", set())
+        _ord = state.setdefault("pick_order", [])
+        for it in items:
+            k = it.get("path")
+            if k and k not in _chk:
+                _chk.add(k)
+                _ord.append(k)
+        refresh()
+        statusvar.set("%d picked" % len(_chk))
+
     def _item_index(rowid):
         if not rowid:
             return None
@@ -1295,12 +1435,13 @@ def run_gui():
                 _flip(_ix)
             except Exception:
                 pass
-        refresh()
-        items = state["items"]
         if nxt_path is not None:
-            _focus_path(nxt_path, min(idx, len(items) - 1))
-        elif items:
-            _focus_path(items[-1].get("path"), len(items) - 1)
+            refresh(nxt_path)
+        else:
+            refresh()
+            items = state["items"]
+            if items:
+                _focus_path(items[-1].get("path"), len(items) - 1)
         return "break"
 
     def on_arrow(_e, step):

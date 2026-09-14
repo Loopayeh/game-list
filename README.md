@@ -14,12 +14,13 @@ Works with `.pkg` packages, `.exfat` / `.ffpfsc` / `.ffpkg` images, and app fold
 - Scan one folder, or **All drives** at once (Windows drive skipped)
 - Sort: size / title / newest added · filter by format, PS4 / PS5, Farsi subtitle, DLC
 - Live search by title or Title ID
-- Pick games with checkboxes (Space works, Ctrl+Z undoes) — picked games stay on top and survive any filter
+- Pick games with checkboxes (Space moves to next row, Ctrl+Z undoes) — picked games stay on top and survive any filter · `Select all` button (or click the ✓ header) picks every visible game for a full export
 - Reorder picked games by dragging a row, or Alt+Up / Alt+Down — Export PDF follows your order, not the sort
 - Live total: picked count + size, shown before export
 - Customer PDF export (light / dark theme) with covers + total line
 - Library snapshots (`.gamelist`): scan once at home, make PDFs at the shop with no HDD attached
 - Open folder: reveal the selected game in Explorer (or double-click its row)
+- Self-update: `Check updates` button compares with the latest GitHub release, downloads the new exe and restarts into it
 - CLI mode for scripting
 
 ## Usage
