@@ -1,5 +1,8 @@
 # Game List — PS4 / PS5
 
+> # 🚧 Coming Soon 🚧
+> First release is on the way — stay tuned.
+
 ![screenshot](screenshot.png)
 
 **Game List** scans a folder (or all drives at once) of PS4 / PS5 game files and builds a clean customer-ready list: cover art, title, Title ID, format, version, and size — exported as a PDF.
