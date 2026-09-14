@@ -37,9 +37,9 @@ GameList.bat
 CLI examples:
 
 ```bat
-GameList.exe --scan H:\homebrew game-list.pdf
+GameList.exe --scan D:\Games game-list.pdf
 GameList.exe --scan ALL --depth=2 --theme=dark --console=ps5 list.pdf
-GameList.exe --scan H:\homebrew --save-lib=my-games.gamelist
+GameList.exe --scan D:\Games --save-lib=my-games.gamelist
 GameList.exe --scan . --lib=my-games.gamelist --hide-dlc shop-list.pdf
 ```
 
