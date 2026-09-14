@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec
+GameList.exe
+.gamelist_cache/
+assets/
+*.pdf
+*.gamelist
