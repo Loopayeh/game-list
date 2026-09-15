@@ -5,7 +5,7 @@
 
 ![screenshot](screenshot.png)
 
-**Game List** scans a folder (or all drives at once) of PS4 / PS5 game files and builds a clean customer-ready list: cover art, title, Title ID, format, version, and size — exported as a PDF.
+**Game List** is for browsing your game archive: point it at a folder (or all drives at once) full of PS4 / PS5 game files and see your whole collection at a glance — cover art, title, Title ID, format, version, size. Pick titles, reorder them, and export the list as a PDF to share or print.
 
 ![customer PDF](screenshot-pdf.png)
 
