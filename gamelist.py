@@ -941,12 +941,9 @@ def run_gui():
                                                          pady=(12, 0))
         _links = ttk.Frame(_ab, style="Card.TFrame")
         _links.pack(pady=(14, 0))
-        ttk.Button(_links, text="Telegram", style="Ghost.TButton",
-                   command=lambda: _wb.open("https://t.me/loopayeh")).pack(
-                       side="left", padx=(0, 8))
-        ttk.Button(_links, text="GitHub", style="Ghost.TButton",
+        ttk.Button(_links, text="Links", style="Ghost.TButton",
                    command=lambda: _wb.open(
-                       "https://github.com/Loopayeh/game-list")).pack(
+                       "https://loopayeh.github.io")).pack(
                            side="left")
         ttk.Button(_ab, text="Close", style="Accent.TButton",
                    command=_ab.destroy).pack(pady=(16, 20))
