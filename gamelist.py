@@ -57,10 +57,10 @@ FMT_COLORS = {
     "exfat": "#e2f985",
     "ffpfsc": "#b693f1",
     "ffpkg": "#e17b7b",
-    "folder": "#91c8f6",
+    "folder": "#b8c4d8",
     "pkg-ps3": "#e8a34c",
     "pkg-ps5": "#91c8f6",
-    "pkg-ps4": "#9efd88",
+    "pkg-ps4": "#8fd694",
 }
 
 
@@ -795,9 +795,9 @@ def run_gui():
                    activeforeground="#e8a34c", font=FONT_SMALL,
                    command=lambda: refresh()).pack(side="left", padx=(8, 0))
     _ps4v = tk.BooleanVar(value=True)
-    tk.Checkbutton(header, text="PS4", variable=_ps4v, bg=BG, fg="#9efd88",
+    tk.Checkbutton(header, text="PS4", variable=_ps4v, bg=BG, fg="#8fd694",
                    selectcolor=CARD2, activebackground=BG,
-                   activeforeground="#9efd88", font=FONT_SMALL,
+                   activeforeground="#8fd694", font=FONT_SMALL,
                    command=lambda: refresh()).pack(side="left", padx=(8, 0))
     _ps5v = tk.BooleanVar(value=True)
     tk.Checkbutton(header, text="PS5", variable=_ps5v, bg=BG, fg="#91c8f6",
