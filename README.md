@@ -1,11 +1,11 @@
-# Game List — PS4 / PS5
+# Game List — PS3 / PS4 / PS5
 
 > # 🚧 Coming Soon 🚧
 > First release is on the way — stay tuned.
 
 ![screenshot](screenshot.png)
 
-**Game List** is for browsing your game archive: point it at a folder (or all drives at once) full of PS4 / PS5 game files and see your whole collection at a glance — cover art, title, Title ID, format, version, size. Pick titles, reorder them, and export the list as a PDF to share or print.
+**Game List** is for browsing your game archive: point it at a folder (or all drives at once) full of PS3 / PS4 / PS5 game files and see your whole collection at a glance — cover art, title, Title ID, format, version, size. Pick titles, reorder them, and export the list as a PDF to share or print.
 
 ![customer PDF](screenshot-pdf.png)
 
@@ -15,7 +15,7 @@ Works with `.pkg` packages, `.exfat` / `.ffpfsc` / `.ffpkg` images, and app fold
 
 - Fast scan with cache + parallel parsing (2 folder levels deep by default, up to 4)
 - Scan one folder, or **All drives** at once (Windows drive skipped)
-- Sort: size / title / newest added · filter by format, PS4 / PS5, Farsi subtitle, DLC
+- Sort: size / title / newest added · filter by format, PS3 / PS4 / PS5, Farsi subtitle, DLC
 - Live search by title or Title ID
 - Pick games with checkboxes (Space moves to next row, Ctrl+Z undoes) — picked games stay on top and survive any filter · `Select all` button (or click the ✓ header) picks every visible game for a full export
 - Reorder picked games by dragging a row, or Alt+Up / Alt+Down — Export PDF follows your order, not the sort

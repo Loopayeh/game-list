@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Game List — scan a folder of PS4/PS5 games, show a table, export customer PDF.
+"""Game List — scan a folder of PS3/PS4/PS5 games, show a table, export customer PDF.
 
-Parse engine is imported from pkg-viewer (no copy): D:/Hermes/pkg-viewer/pkgviewer.py
+Parse engine is imported from pkg-viewer (no copy): D:/Hermes/projects/pkg-viewer/pkgviewer.py
 """
 import concurrent.futures as _fut
 import hashlib as _hl
@@ -13,8 +13,10 @@ import tempfile
 import threading as _th
 import time as _time
 
-sys.path.insert(0, os.path.join("D:", os.sep, "Hermes", "pkg-viewer"))
-from pkgviewer import parse_pkg, read_entry_bytes, fmt_size  # noqa: E402
+sys.path.insert(0, os.path.join("D:", os.sep, "Hermes", "projects",
+                                  "pkg-viewer"))
+from pkgviewer import (parse_pkg, read_entry_bytes, fmt_size,  # noqa: E402
+                       _ps3_folder_base)
 
 SUPPORTED_EXTS = (".pkg", ".exfat", ".ffpfsc", ".ffpkg")
 
@@ -56,19 +58,24 @@ FMT_COLORS = {
     "ffpfsc": "#b693f1",
     "ffpkg": "#e17b7b",
     "folder": "#91c8f6",
+    "pkg-ps3": "#e8a34c",
     "pkg-ps5": "#91c8f6",
     "pkg-ps4": "#9efd88",
 }
 
 
 def console_of(it):
-    """ps4 / ps5 from platform text or title id (CUSA = PS4, PPSA = PS5)."""
+    """ps3 / ps4 / ps5 from platform text or title id (CUSA = PS4, PPSA = PS5)."""
     pl = (it.get("platform") or "").lower()
+    if "ps3" in pl:
+        return "ps3"
     if "ps4" in pl or "cnt" in pl:
         return "ps4"
     tid = (it.get("title_id") or "").upper()
     if tid.startswith("CUSA"):
         return "ps4"
+    if tid.startswith(("NP", "BL", "BC")):
+        return "ps3"
     return "ps5"
 
 
@@ -89,11 +96,17 @@ def is_extra(it):
 
 
 def fmt_tag(it):
-    """Color tag for an item: pkg splits into ps4/ps5 via platform."""
+    """Color tag for an item: pkg splits into ps3/ps4/ps5 via platform."""
     f = (it.get("fmt") or "?").lower()
     if f == "pkg":
         pl = (it.get("platform") or "").lower()
-        return "pkg-ps4" if ("ps4" in pl or "cnt" in pl) else "pkg-ps5"
+        if "ps3" in pl:
+            return "pkg-ps3"
+        if "ps4" in pl or "cnt" in pl:
+            return "pkg-ps4"
+        if "ps5" in pl:
+            return "pkg-ps5"
+        return "pkg-" + console_of(it)
     return f if f in FMT_COLORS else "?"
 
 
@@ -256,8 +269,14 @@ def summarize(path, cache=None, save_cover=True):
 
 
 def is_game_dir(full):
-    return (os.path.isdir(full)
-            and os.path.isfile(os.path.join(full, "sce_sys", "param.json")))
+    if not os.path.isdir(full):
+        return False
+    if os.path.isfile(os.path.join(full, "sce_sys", "param.json")):
+        return True
+    try:
+        return bool(_ps3_folder_base(full))
+    except Exception:
+        return False
 
 
 def list_drives():
@@ -648,7 +667,7 @@ def run_gui():
              "sort": "size", "fmts": list(FMTS), "pdf_theme": "dark"}
 
     root = tk.Tk()
-    root.title("Game List %s  •  PS4 / PS5" % APP_VERSION)
+    root.title("Game List %s  •  PS3 / PS4 / PS5" % APP_VERSION)
     try:
         import sys as _sys
         _ic = os.path.join(getattr(_sys, "_MEIPASS",
@@ -765,6 +784,11 @@ def run_gui():
                    selectcolor=CARD2, activebackground=BG,
                    activeforeground="#9efd88", font=FONT_SMALL,
                    command=lambda: refresh()).pack(side="left", padx=(8, 0))
+    _ps3v = tk.BooleanVar(value=True)
+    tk.Checkbutton(header, text="PS3", variable=_ps3v, bg=BG, fg="#e8a34c",
+                   selectcolor=CARD2, activebackground=BG,
+                   activeforeground="#e8a34c", font=FONT_SMALL,
+                   command=lambda: refresh()).pack(side="left", padx=(8, 0))
     _ps4v = tk.BooleanVar(value=True)
     tk.Checkbutton(header, text="PS4", variable=_ps4v, bg=BG, fg="#9efd88",
                    selectcolor=CARD2, activebackground=BG,
@@ -775,6 +799,7 @@ def run_gui():
                    selectcolor=CARD2, activebackground=BG,
                    activeforeground="#91c8f6", font=FONT_SMALL,
                    command=lambda: refresh()).pack(side="left", padx=(4, 0))
+    state["ps3var"] = _ps3v
     state["ps4var"] = _ps4v
     state["ps5var"] = _ps5v
     state["farsivar"] = _fav
@@ -1080,12 +1105,14 @@ def run_gui():
         _fav = state.get("farsivar")
         if _fav is not None and _fav.get():
             items = [it for it in items if it.get("fa")]
+        _p3 = state.get("ps3var")
         _p4 = state.get("ps4var")
         _p5 = state.get("ps5var")
-        if _p4 is not None and _p5 is not None and not (
-                _p4.get() and _p5.get()):
+        if _p3 is not None and _p4 is not None and _p5 is not None and not (
+                _p3.get() and _p4.get() and _p5.get()):
             items = [it for it in items
-                     if (_p4.get() and console_of(it) == "ps4")
+                     if (_p3.get() and console_of(it) == "ps3")
+                     or (_p4.get() and console_of(it) == "ps4")
                      or (_p5.get() and console_of(it) == "ps5")]
         _sv = state.get("searchvar")
         if _sv is not None:
