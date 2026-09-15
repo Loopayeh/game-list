@@ -672,7 +672,7 @@ def run_gui():
              "sort": "size", "fmts": list(FMTS), "pdf_theme": "dark"}
 
     root = tk.Tk()
-    root.title("Game List %s  •  PS3 / PS4 / PS5" % APP_VERSION)
+    root.title("Game List %s  •  PS3 / PS4 / PS5  •  by Loopayeh" % APP_VERSION)
     try:
         import sys as _sys
         _ic = os.path.join(getattr(_sys, "_MEIPASS",
@@ -920,6 +920,16 @@ def run_gui():
     ttk.Button(bottombar, text="Check updates", style="Ghost.TButton",
                command=lambda: check_updates(manual=True)).pack(
                    side="right", padx=(0, 12), pady=4)
+    ttk.Button(bottombar, text="About", style="Ghost.TButton",
+               command=lambda: show_about()).pack(
+                   side="right", padx=(0, 8), pady=4)
+
+    def show_about():
+        from tkinter import messagebox as _mb
+        _mb.showinfo("About Game List",
+                     "Game List %s\nby Loopayeh\n\n"
+                     "Browse your PS3 / PS4 / PS5 game archive.\n"
+                     "Contact: t.me/loopayeh" % APP_VERSION)
 
     def check_updates(manual=False):
         """Check GitHub releases for a newer build (stdlib only)."""
