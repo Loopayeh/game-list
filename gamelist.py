@@ -279,10 +279,15 @@ def is_game_dir(full):
         return False
 
 
-def list_drives():
-    """All mounted Windows drives, e.g. ['C:/', 'D:/', 'H:/']."""
+def list_drives(include_system=False):
+    """Mounted Windows drives, e.g. ['C:/', 'D:/', 'H:/'].
+
+    C: is only included with include_system=True (opt-in, never default).
+    """
+    letters = ("CDEFGHIJKLMNOPQRSTUVWXYZAB" if include_system
+               else "DEFGHIJKLMNOPQRSTUVWXYZAB")
     out = []
-    for _L in "DEFGHIJKLMNOPQRSTUVWXYZAB":  # C: is the Windows drive, never games
+    for _L in letters:
         _p = _L + ":/"
         if os.path.isdir(_p):
             out.append(_p)
@@ -1041,7 +1046,7 @@ def run_gui():
 
     def scan_drives():
         import shutil
-        drives = list_drives()
+        drives = list_drives(include_system=True)
         if not drives:
             statusvar.set("No drives found")
             return
@@ -1061,7 +1066,7 @@ def run_gui():
                     _d, fmt_size(_u.free), fmt_size(_u.total))
             except Exception:
                 _info = _d
-            _v = tk.BooleanVar(value=True)
+            _v = tk.BooleanVar(value=(_d.upper() != "C:/"))
             tk.Checkbutton(dlg, text=_info, variable=_v, bg=BG, fg=TEXT,
                            selectcolor=CARD2, activebackground=BG,
                            activeforeground=TEXT, font=FONT).pack(

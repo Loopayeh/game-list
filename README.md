@@ -14,7 +14,7 @@ Works with `.pkg` packages, `.exfat` / `.ffpfsc` / `.ffpkg` images, and app fold
 ## Features
 
 - Fast scan with cache + parallel parsing (2 folder levels deep by default, up to 4)
-- Scan one folder, or **All drives** at once (Windows drive skipped)
+- Scan one folder, or **All drives** at once (C: listed but unticked by default)
 - Sort: size / title / newest added · filter by format, PS3 / PS4 / PS5, Farsi subtitle, DLC
 - Live search by title or Title ID
 - Pick games with checkboxes (Space moves to next row, Ctrl+Z undoes) — picked games stay on top and survive any filter · `Select all` button (or click the ✓ header) picks every visible game for a full export
